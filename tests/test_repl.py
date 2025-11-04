@@ -40,7 +40,14 @@ class TestCalculatorREPL:
     @pytest.fixture
     def calculator(self):
         """Create calculator instance."""
+        import tempfile
+        import os
+        temp_dir = tempfile.mkdtemp()
         config = CalculatorConfig()
+        config._config['CALCULATOR_LOG_DIR'] = temp_dir
+        config._config['CALCULATOR_HISTORY_DIR'] = temp_dir
+        config._config['CALCULATOR_LOG_FILE'] = os.path.join(temp_dir, 'test.log')
+        config._config['CALCULATOR_HISTORY_FILE'] = os.path.join(temp_dir, 'test.csv')
         config._config['CALCULATOR_AUTO_SAVE'] = False
         return Calculator(config)
     

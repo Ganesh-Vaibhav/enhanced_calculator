@@ -28,6 +28,9 @@ class TestLoggingObserver:
         config._config['CALCULATOR_LOG_DIR'] = temp_dir
         config._config['CALCULATOR_LOG_FILE'] = os.path.join(temp_dir, 'test.log')
         config._config['CALCULATOR_AUTO_SAVE'] = False
+        # Ensure logger is initialized
+        from app.logger import CalculatorLogger
+        CalculatorLogger.setup(config)
         return config
     
     def test_logging_observer_update(self, config):
@@ -63,7 +66,12 @@ class TestAutoSaveObserver:
         config = CalculatorConfig()
         config._config['CALCULATOR_HISTORY_DIR'] = temp_dir
         config._config['CALCULATOR_HISTORY_FILE'] = os.path.join(temp_dir, 'test.csv')
+        config._config['CALCULATOR_LOG_DIR'] = temp_dir
+        config._config['CALCULATOR_LOG_FILE'] = os.path.join(temp_dir, 'test.log')
         config._config['CALCULATOR_AUTO_SAVE'] = False
+        # Ensure logger is initialized
+        from app.logger import CalculatorLogger
+        CalculatorLogger.setup(config)
         return config
     
     def test_auto_save_observer_update(self, config, temp_dir):

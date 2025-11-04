@@ -49,8 +49,13 @@ class TestCalculatorLogger:
         config._config['CALCULATOR_LOG_DIR'] = str(tmp_path)
         config._config['CALCULATOR_LOG_FILE'] = str(tmp_path / 'test.log')
         
+        # Reset logger
         CalculatorLogger._logger = None
+        
+        # Setup logger
         CalculatorLogger.setup(config)
+        
+        # Now get logger should work
         logger = CalculatorLogger.get_logger()
         assert logger is not None
 

@@ -88,7 +88,14 @@ class RootOperation(Operation):
         if operand2 == 0:
             raise OperationError("Root degree cannot be zero")
         try:
-            result = operand1 ** (1.0 / operand2)
+            # For odd roots of negative numbers, use sign-aware calculation
+            if operand1 < 0 and operand2 % 2 == 1:
+                # Odd root of negative number: result is negative
+                result = -((-operand1) ** (1.0 / operand2))
+            else:
+                result = operand1 ** (1.0 / operand2)
+            
+            # Check if result is complex (shouldn't happen with our logic, but just in case)
             if isinstance(result, complex):
                 raise OperationError(f"Cannot compute {operand2}th root of {operand1}")
             return float(result)

@@ -42,17 +42,11 @@ class CalculatorCaretaker:
         current_memento = CalculatorMemento(current_history)
         self._redo_stack.append(current_memento)
         
-        # Pop current state from undo stack and get previous state
-        # The undo stack contains states in order: [oldest, ..., previous, current]
-        self._undo_stack.pop()  # Remove current state
-        
-        # Get the previous state (now at the top of the stack)
-        if self._undo_stack:
-            previous_memento = self._undo_stack[-1]
-            return previous_memento.get_history()
-        else:
-            # No previous state, return empty history
-            return []
+        # Pop the previous state from undo stack
+        # The undo stack contains states saved BEFORE each calculation
+        # So the last item is the state before the current calculation
+        previous_memento = self._undo_stack.pop()
+        return previous_memento.get_history()
     
     def redo(self, current_history: List[Calculation]) -> List[Calculation]:
         """Restore next state from redo stack."""
