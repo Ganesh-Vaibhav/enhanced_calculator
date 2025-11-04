@@ -17,14 +17,12 @@ class CalculatorLogger:
     @classmethod
     def setup(cls, config: CalculatorConfig):
         """Setup logging configuration."""
-        if cls._logger is not None:
-            return cls._logger
-        
         logger = logging.getLogger('calculator')
         logger.setLevel(logging.INFO)
         
         # Prevent duplicate handlers
         if logger.handlers:
+            cls._logger = logger
             return logger
         
         # File handler
