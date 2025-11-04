@@ -29,11 +29,15 @@ class LoggingObserver(Observer):
     
     def update(self, calculation: Calculation):
         """Log the calculation."""
-        logger = CalculatorLogger.get_logger()
-        logger.info(
-            f"Calculation: {calculation.operand1} {calculation.operation} "
-            f"{calculation.operand2} = {calculation.result}"
-        )
+        try:
+            logger = CalculatorLogger.get_logger()
+            logger.info(
+                f"Calculation: {calculation.operand1} {calculation.operation} "
+                f"{calculation.operand2} = {calculation.result}"
+            )
+        except RuntimeError:
+            # Logger not initialized, skip logging
+            pass
 
 
 class AutoSaveObserver(Observer):
@@ -48,8 +52,12 @@ class AutoSaveObserver(Observer):
         try:
             self.history_manager.save_to_csv()
         except Exception as e:
-            logger = CalculatorLogger.get_logger()
-            logger.error(f"Auto-save failed: {str(e)}")
+            try:
+                logger = CalculatorLogger.get_logger()
+                logger.error(f"Auto-save failed: {str(e)}")
+            except RuntimeError:
+                # Logger not initialized, skip logging
+                pass
 
 
 class Calculator:
@@ -97,8 +105,13 @@ class Calculator:
             try:
                 observer.update(calculation)
             except Exception as e:
-                logger = CalculatorLogger.get_logger()
-                logger.error(f"Observer notification failed: {str(e)}")
+                # Try to log error, but don't fail if logger isn't available
+                try:
+                    logger = CalculatorLogger.get_logger()
+                    logger.error(f"Observer notification failed: {str(e)}")
+                except RuntimeError:
+                    # Logger not initialized, skip logging
+                    pass
     
     def calculate(self, operation: str, operand1: float, operand2: float) -> float:
         """Perform a calculation and return the result."""
@@ -148,8 +161,12 @@ class Calculator:
         """Clear calculation history."""
         self.caretaker.save_state(self.history_manager.get_all())
         self.history_manager.clear()
-        logger = CalculatorLogger.get_logger()
-        logger.info("History cleared")
+        try:
+            logger = CalculatorLogger.get_logger()
+            logger.info("History cleared")
+        except RuntimeError:
+            # Logger not initialized, skip logging
+            pass
     
     def undo(self) -> bool:
         """Undo the last calculation."""
@@ -158,8 +175,12 @@ class Calculator:
         
         previous_history = self.caretaker.undo(self.history_manager.get_all())
         self.history_manager.history = previous_history
-        logger = CalculatorLogger.get_logger()
-        logger.info("Undo performed")
+        try:
+            logger = CalculatorLogger.get_logger()
+            logger.info("Undo performed")
+        except RuntimeError:
+            # Logger not initialized, skip logging
+            pass
         return True
     
     def redo(self) -> bool:
@@ -169,8 +190,12 @@ class Calculator:
         
         next_history = self.caretaker.redo(self.history_manager.get_all())
         self.history_manager.history = next_history
-        logger = CalculatorLogger.get_logger()
-        logger.info("Redo performed")
+        try:
+            logger = CalculatorLogger.get_logger()
+            logger.info("Redo performed")
+        except RuntimeError:
+            # Logger not initialized, skip logging
+            pass
         return True
     
     def save_history(self, file_path: Optional[str] = None) -> str:
@@ -180,7 +205,11 @@ class Calculator:
     def load_history(self, file_path: Optional[str] = None) -> List[Calculation]:
         """Load history from CSV file."""
         calculations = self.history_manager.load_from_csv(file_path)
-        logger = CalculatorLogger.get_logger()
-        logger.info(f"Loaded {len(calculations)} calculations from history")
+        try:
+            logger = CalculatorLogger.get_logger()
+            logger.info(f"Loaded {len(calculations)} calculations from history")
+        except RuntimeError:
+            # Logger not initialized, skip logging
+            pass
         return calculations
 

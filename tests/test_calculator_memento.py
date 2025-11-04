@@ -36,24 +36,41 @@ class TestCalculatorCaretaker:
     def test_undo(self):
         """Test undo functionality."""
         caretaker = CalculatorCaretaker()
+        # Simulate real usage: save state BEFORE adding calculation
+        empty_history = []
         history1 = [Calculation('add', 5, 3, 8)]
         history2 = [Calculation('add', 5, 3, 8), Calculation('multiply', 2, 4, 8)]
         
-        caretaker.save_state(history1)
-        caretaker.save_state(history2)
+        # Save empty state (before first calc), then add calc1
+        caretaker.save_state(empty_history)  # State before calc1
+        # calc1 added -> history = history1
         
+        # Save state before calc2, then add calc2
+        caretaker.save_state(history1)  # State before calc2
+        # calc2 added -> history = history2
+        
+        # Now undo from history2 should return history1
         restored = caretaker.undo(history2)
         assert len(restored) == 1
+        assert restored[0].operation == 'add'
     
     def test_redo(self):
         """Test redo functionality."""
         caretaker = CalculatorCaretaker()
+        # Simulate real usage: save state BEFORE adding calculation
+        empty_history = []
         history1 = [Calculation('add', 5, 3, 8)]
         history2 = [Calculation('add', 5, 3, 8), Calculation('multiply', 2, 4, 8)]
         
-        caretaker.save_state(history1)
-        caretaker.save_state(history2)
-        # After undo, current state is history1
+        # Save empty state (before first calc), then add calc1
+        caretaker.save_state(empty_history)  # State before calc1
+        # calc1 added -> history = history1
+        
+        # Save state before calc2, then add calc2
+        caretaker.save_state(history1)  # State before calc2
+        # calc2 added -> history = history2
+        
+        # Undo from history2 should return history1
         restored_after_undo = caretaker.undo(history2)
         assert len(restored_after_undo) == 1
         
