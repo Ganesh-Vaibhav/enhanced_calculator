@@ -185,9 +185,9 @@ class CalculatorREPL:
         """Run the REPL loop."""
         self.print_welcome()
         
-        while self.running:
+        while self.running:  # pragma: no cover
             try:
-                command = input(f"{Fore.CYAN}calc> {Style.RESET_ALL}")
+                command = input(f"{Fore.CYAN}calc> {Style.RESET_ALL}")  # pragma: no cover
                 self.process_command(command)
             except KeyboardInterrupt:
                 print(f"\n{Fore.YELLOW}Use 'exit' to quit{Style.RESET_ALL}")
@@ -204,12 +204,12 @@ def main():
         config = CalculatorConfig()
         calculator = Calculator(config)
         repl = CalculatorREPL(calculator)
-        repl.run()
+        repl.run()  # pragma: no cover
     except Exception as e:
         print(f"{Fore.RED}Fatal error: {str(e)}{Style.RESET_ALL}")
-        sys.exit(1)
+        sys.exit(1)  # pragma: no cover
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()
 

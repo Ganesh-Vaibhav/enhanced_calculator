@@ -53,9 +53,12 @@ class TestCalculatorCaretaker:
         
         caretaker.save_state(history1)
         caretaker.save_state(history2)
-        caretaker.undo(history2)
+        # After undo, current state is history1
+        restored_after_undo = caretaker.undo(history2)
+        assert len(restored_after_undo) == 1
         
-        restored = caretaker.redo(history1)
+        # Now redo from history1 should restore history2
+        restored = caretaker.redo(restored_after_undo)
         assert len(restored) == 2
     
     def test_redo_cleared_on_new_action(self):
