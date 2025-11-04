@@ -68,21 +68,25 @@ class TestCalculatorExtended:
     
     def test_multiple_undo_redo(self, calculator):
         """Test multiple undo/redo operations."""
-        calculator.calculate('add', 1, 1)
-        calculator.calculate('add', 2, 2)
-        calculator.calculate('add', 3, 3)
+        calculator.calculate('add', 1, 1)  # History: [calc1], undo stack: [[]]
+        calculator.calculate('add', 2, 2)  # History: [calc1, calc2], undo stack: [[], [calc1]]
+        calculator.calculate('add', 3, 3)  # History: [calc1, calc2, calc3], undo stack: [[], [calc1], [calc1, calc2]]
         
         assert len(calculator.get_history()) == 3
         
+        # Undo: should go back to [calc1, calc2]
         calculator.undo()
         assert len(calculator.get_history()) == 2
         
+        # Undo: should go back to [calc1]
         calculator.undo()
         assert len(calculator.get_history()) == 1
         
+        # Redo: should go forward to [calc1, calc2]
         calculator.redo()
         assert len(calculator.get_history()) == 2
         
+        # Redo: should go forward to [calc1, calc2, calc3]
         calculator.redo()
         assert len(calculator.get_history()) == 3
     
@@ -116,6 +120,7 @@ class TestCalculatorExtended:
         # Set precision to 2
         calculator.config._config['CALCULATOR_PRECISION'] = 2
         result = calculator.calculate('divide', 1, 3)
-        # Should be rounded to 2 decimal places
-        assert len(str(result).split('.')[-1]) <= 2 or result == round(result, 2)
+        # Should be rounded to 2 decimal places (0.33)
+        rounded = round(1.0 / 3.0, 2)
+        assert abs(result - rounded) < 1e-10
 

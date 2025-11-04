@@ -71,9 +71,11 @@ class TestAutoSaveObserver:
         from app.history import HistoryManager
         
         history_manager = HistoryManager(config)
-        observer = AutoSaveObserver(history_manager)
-        
+        # Add calculation to history first
         calc = Calculation('add', 5, 3, 8)
+        history_manager.add(calc)
+        
+        observer = AutoSaveObserver(history_manager)
         observer.update(calc)
         
         # Check if file was created
@@ -89,11 +91,9 @@ class TestAutoSaveObserver:
         observer = AutoSaveObserver(history_manager)
         
         calc = Calculation('add', 5, 3, 8)
+        history_manager.add(calc)
         
         # Should not raise even if save fails
         with patch.object(history_manager, 'save_to_csv', side_effect=Exception("Save failed")):
-            try:
-                observer.update(calc)
-            except Exception:
-                pytest.fail("Observer should handle exceptions gracefully")
+            observer.update(calc)  # Should not raise
 

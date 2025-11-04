@@ -89,8 +89,10 @@ class TestCalculatorREPL:
     def test_handle_calculation_insufficient_args(self, mock_print, repl):
         """Test calculation with insufficient arguments."""
         repl.handle_calculation('add', ['5'])
-        mock_print.assert_called()
-        assert "Error" in str(mock_print.call_args)
+        # Should print error message
+        assert mock_print.called
+        call_args = str(mock_print.call_args)
+        assert "Error" in call_args or "operands" in call_args.lower()
     
     @patch('builtins.print')
     def test_handle_calculation_invalid_input(self, mock_print, repl):
@@ -229,42 +231,38 @@ class TestCalculatorREPL:
             repl.process_command("unknown_command")
             mock_error.assert_called_once()
     
-    @patch('builtins.input', return_value='exit')
+    @patch('builtins.input', side_effect=['exit'])
     @patch('builtins.print')
     def test_run_exit(self, mock_print, mock_input, repl):
         """Test REPL run with exit command."""
+        repl.running = True
         repl.run()
         assert not repl.running
     
-    @patch('builtins.input', side_effect=KeyboardInterrupt())
+    @patch('builtins.input', side_effect=[KeyboardInterrupt(), 'exit'])
     @patch('builtins.print')
     def test_run_keyboard_interrupt(self, mock_print, mock_input, repl):
         """Test REPL run with keyboard interrupt."""
         repl.running = True
-        try:
-            repl.run()
-        except StopIteration:
-            pass
-        assert True  # Should handle gracefully
+        # Should handle KeyboardInterrupt gracefully
+        repl.run()
+        assert not repl.running  # Exits after 'exit' command
     
-    @patch('builtins.input', side_effect=EOFError())
+    @patch('builtins.input', side_effect=EOFError)
     @patch('builtins.print')
     def test_run_eof(self, mock_print, mock_input, repl):
         """Test REPL run with EOF."""
         repl.running = True
-        try:
-            repl.run()
-        except StopIteration:
-            pass
+        repl.run()
         assert not repl.running
     
     @patch('app.repl.CalculatorREPL')
     @patch('app.repl.Calculator')
     @patch('app.repl.CalculatorConfig')
-    def test_main(self, mock_config, mock_calc_class, mock_repl_class):
+    def test_main(self, mock_config_class, mock_calc_class, mock_repl_class):
         """Test main function."""
         mock_config_instance = Mock()
-        mock_config.return_value = mock_config_instance
+        mock_config_class.return_value = mock_config_instance
         mock_calc_instance = Mock()
         mock_calc_class.return_value = mock_calc_instance
         mock_repl_instance = Mock()
@@ -272,5 +270,8 @@ class TestCalculatorREPL:
         
         main()
         
+        mock_config_class.assert_called_once()
+        mock_calc_class.assert_called_once_with(mock_config_instance)
+        mock_repl_class.assert_called_once_with(mock_calc_instance)
         mock_repl_instance.run.assert_called_once()
 

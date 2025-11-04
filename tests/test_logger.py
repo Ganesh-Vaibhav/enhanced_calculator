@@ -26,11 +26,22 @@ class TestCalculatorLogger:
         assert logger is not None
         assert isinstance(logger, logging.Logger)
     
-    def test_get_logger_without_setup(self):
+    def test_get_logger_without_setup(self, tmp_path):
         """Test getting logger without setup."""
+        # First setup to ensure we can test the failure case
+        config = CalculatorConfig()
+        config._config['CALCULATOR_LOG_DIR'] = str(tmp_path)
+        config._config['CALCULATOR_LOG_FILE'] = str(tmp_path / 'test.log')
+        CalculatorLogger.setup(config)
+        
+        # Now test the failure case by temporarily removing the logger
+        original_logger = CalculatorLogger._logger
         CalculatorLogger._logger = None
-        with pytest.raises(RuntimeError, match="Logger not initialized"):
-            CalculatorLogger.get_logger()
+        try:
+            with pytest.raises(RuntimeError, match="Logger not initialized"):
+                CalculatorLogger.get_logger()
+        finally:
+            CalculatorLogger._logger = original_logger
     
     def test_get_logger_after_setup(self, tmp_path):
         """Test getting logger after setup."""

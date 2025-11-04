@@ -42,7 +42,9 @@ class TestRootOperationExtended:
         """Test odd root of negative number."""
         op = RootOperation()
         result = op.execute(-8, 3)
-        assert abs(result - (-2.0)) < 1e-10 or result < 0
+        # For odd roots of negative numbers, result should be negative
+        assert result < 0
+        assert abs(abs(result) - 2.0) < 1e-10
     
     def test_fourth_root(self):
         """Test fourth root."""
